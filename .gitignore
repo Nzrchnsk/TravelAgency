@@ -1,0 +1,7 @@
+.idea
+.vs
+
+TravelAgency/bin
+TravelAgency/obj
+
+TravelAgency/appsettings.Development.json
