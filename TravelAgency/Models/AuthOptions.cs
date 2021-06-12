@@ -8,7 +8,7 @@ namespace TravelAgency.Models
         public const string ISSUER = "TestApp"; // издатель токена
         public const string AUDIENCE = "TestAppClient"; // потребитель токена
         const string KEY = "sdlfnadnfjkuuooknshucwx";   // ключ для шифрации
-        public const int LIFETIME = 100; // время жизни токена - 1 минута
+        public const int LIFETIME = 360; // время жизни токена в минутах
         public static SymmetricSecurityKey GetSymmetricSecurityKey()
         {
             return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(KEY));

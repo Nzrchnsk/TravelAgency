@@ -14,7 +14,7 @@ namespace TravelAgency.Models
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbContextOptions) : base(dbContextOptions)
         {
-            // Database.EnsureCreated();
+            Database.EnsureCreated();
             if (!Places.Any())
             {
                 Places.Add(new Place
@@ -48,6 +48,7 @@ namespace TravelAgency.Models
 
                 entity.Property(e => e.Price);
                 entity.Property(e => e.ArrivalDate);
+                entity.Property(e => e.TotalTicket);
                 entity.Property(e => e.DepartureDate);
 
                 

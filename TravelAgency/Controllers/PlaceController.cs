@@ -1,26 +1,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TravelAgency.Dto;
+using TravelAgency.Interfaces;
 using TravelAgency.Models;
 
 namespace TravelAgency.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Route("api/places")]
     [ApiController]
     public class PlaceController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IAsyncRepository<Place> _placesRepository;
+        private readonly IMapper _mapper;
 
-        public PlaceController(ApplicationDbContext context)
+        public PlaceController(ApplicationDbContext context, IMapper mapper, IAsyncRepository<Place> placesRepository)
         {
+            _placesRepository = placesRepository;
+            _mapper = mapper;
             _context = context;
         }
 
         // GET: api/Place
-        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Place>>> GetPlaces()
         {
@@ -31,7 +39,7 @@ namespace TravelAgency.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Place>> GetPlace(int id)
         {
-            var place = await _context.Places.FindAsync(id);
+            var place = await _placesRepository.GetByIdAsync(id);
 
             if (place == null)
             {
@@ -44,18 +52,13 @@ namespace TravelAgency.Controllers
         // PUT: api/Place/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPlace(int id, Place place)
+        public async Task<IActionResult> PutPlace(int id, PlaceDto request)
         {
-            if (id != place.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(place).State = EntityState.Modified;
-
+            var place = await _placesRepository.GetByIdAsync(id);
+            _mapper.Map(request, place);
             try
             {
-                await _context.SaveChangesAsync();
+                await _placesRepository.UpdateAsync(place);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -69,37 +72,29 @@ namespace TravelAgency.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok();
         }
 
         // POST: api/Place
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Place>> PostPlace(Place place)
+        public async Task<ActionResult<Place>> PostPlace(PlaceDto request)
         {
-            _context.Places.Add(place);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPlace",
-                new
-                {
-                    id = place.Id
-                },
-                place);
+            var place = _mapper.Map<Place>(request);
+            return await _placesRepository.AddAsync(place);
         }
 
         // DELETE: api/Place/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePlace(int id)
         {
-            var place = await _context.Places.FindAsync(id);
+            var place = await _placesRepository.GetByIdAsync(id);
             if (place == null)
             {
                 return NotFound();
             }
 
-            _context.Places.Remove(place);
-            await _context.SaveChangesAsync();
+            await _placesRepository.DeleteAsync(place);
 
             return NoContent();
         }

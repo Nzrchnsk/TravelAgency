@@ -252,6 +252,9 @@ namespace TravelAgency.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
+                    b.Property<int>("TotalTicket")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ArrivalPlaceId");
