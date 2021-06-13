@@ -3,22 +3,22 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TravelAgency.Models;
 
 namespace TravelAgency.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210612171939_addTotalTicketInTrip")]
+    partial class addTotalTicketInTrip
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.5")
-                .HasAnnotation("SqlServer:IdentityIncrement", 1)
-                .HasAnnotation("SqlServer:IdentitySeed", 1)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -151,6 +151,26 @@ namespace TravelAgency.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("TravelAgency.Models.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Orders");
+                });
+
             modelBuilder.Entity("TravelAgency.Models.Place", b =>
                 {
                     b.Property<int>("Id")
@@ -183,8 +203,12 @@ namespace TravelAgency.Migrations
                     b.Property<string>("Number")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int")
+                        .HasColumnName("OrderId");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<int>("TripId")
                         .HasColumnType("int")
@@ -195,6 +219,8 @@ namespace TravelAgency.Migrations
                         .HasColumnName("UserId");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("TripId");
 
@@ -358,8 +384,25 @@ namespace TravelAgency.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TravelAgency.Models.Order", b =>
+                {
+                    b.HasOne("TravelAgency.Models.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TravelAgency.Models.Ticket", b =>
                 {
+                    b.HasOne("TravelAgency.Models.Order", "Order")
+                        .WithMany("Tickets")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("TravelAgency.Models.Trip", "Trip")
                         .WithMany("Tickets")
                         .HasForeignKey("TripId")
@@ -371,6 +414,8 @@ namespace TravelAgency.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Order");
 
                     b.Navigation("Trip");
 
@@ -396,6 +441,11 @@ namespace TravelAgency.Migrations
                     b.Navigation("DeparturePlace");
                 });
 
+            modelBuilder.Entity("TravelAgency.Models.Order", b =>
+                {
+                    b.Navigation("Tickets");
+                });
+
             modelBuilder.Entity("TravelAgency.Models.Place", b =>
                 {
                     b.Navigation("ArrivalTrips");
@@ -410,6 +460,8 @@ namespace TravelAgency.Migrations
 
             modelBuilder.Entity("TravelAgency.Models.User", b =>
                 {
+                    b.Navigation("Orders");
+
                     b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618

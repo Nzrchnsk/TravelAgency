@@ -7,7 +7,7 @@ namespace TravelAgency.Initializers
     {
         public static async Task InitializeRoleAsync(RoleManager<IdentityRole<int>> roleManager)
         {
-            var roles = Rolse.AllStatuses;
+            var roles = Rolse.AllRoles;
             foreach (var role in roles)
             {
                 if (await roleManager.FindByNameAsync(role) == null)

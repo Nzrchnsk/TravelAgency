@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using TravelAgency.Initializers;
 using TravelAgency.Interfaces;
 using TravelAgency.Models;
 using TravelAgency.Models.Repositories;
@@ -34,8 +35,11 @@ namespace TravelAgency
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddControllersWithViews();
+        {           
+            services.AddCors();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<User, IdentityRole<int>>(opts =>
@@ -84,25 +88,34 @@ namespace TravelAgency
                 });
             });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
                 .AddJwtBearer(options =>
                 {
-                    options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = true,
+                        ValidateIssuer = false,
                         ValidIssuer = AuthOptions.ISSUER,
 
-                        ValidateAudience = true,
+                        ValidateAudience = false,
                         ValidAudience = AuthOptions.AUDIENCE,
-                        ValidateLifetime = true,
-
+                        ValidateLifetime = false,
+                        
                         IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                        ValidateIssuerSigningKey = true,
+                        ValidateIssuerSigningKey = false,
                     };
                 });
-            services.AddCors(options => { options.AddPolicy(CorsPolicy, options => 
-                options.AllowAnyOrigin()); });
+            
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
+            
+            services.AddTransient<MigrationInitializer>();
+            
             services.AddAutoMapper(e =>
             {
                 e.AddProfile<AutoMapperProfile>();
@@ -128,13 +141,15 @@ namespace TravelAgency
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials()); // allow credentials
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSwagger();
-            app.UseCors(options => options
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
+          
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelAgency");

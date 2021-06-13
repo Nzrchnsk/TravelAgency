@@ -14,7 +14,7 @@ using TravelAgency.Models;
 namespace TravelAgency.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("api/trip")]
+    [Route("api/trips")]
     [ApiController]
     public class TripController : ControllerBase
     {
@@ -33,24 +33,32 @@ namespace TravelAgency.Controllers
         // GET: api/Trip
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Trip>>> GetTrips()
-        {
-            return await _context.Trips.ToListAsync();
-        }
+        public async Task<List<TripResponseDto>> GetTrips() => await GetTrip().ToListAsync();
+
 
         // GET: api/Trip/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Trip>> GetTrip(int id)
+        public async Task<ActionResult<TripResponseDto>> GetTrip(int id)
         {
-            var trip = await _placesRepository.GetByIdAsync(id);
-
-            if (trip == null)
+            var result = await _context.Trips
+                .Include(i => i.ArrivalPlace)
+                .Include(i => i.DeparturePlace)
+                .Include(i => i.Tickets)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            var trip = new TripResponseDto(result);
+            if (result == null)
             {
                 return NotFound();
             }
 
             return trip;
         }
+
+        private IQueryable<TripResponseDto> GetTrip() => _context.Trips
+            .Include(i => i.ArrivalPlace)
+            .Include(i => i.DeparturePlace)
+            .Include(i => i.Tickets)
+            .Select(n => new TripResponseDto(n));
 
         // PUT: api/Trip/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -120,9 +128,6 @@ namespace TravelAgency.Controllers
             return NoContent();
         }
 
-        private bool TripExists(int id)
-        {
-            return _context.Trips.Any(e => e.Id == id);
-        }
+        private bool TripExists(int id) => _context.Trips.Any(e => e.Id == id);
     }
 }

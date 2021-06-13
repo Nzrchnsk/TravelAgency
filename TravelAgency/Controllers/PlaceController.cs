@@ -12,9 +12,9 @@ using TravelAgency.Models;
 
 namespace TravelAgency.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/places")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PlaceController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

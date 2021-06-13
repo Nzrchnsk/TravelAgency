@@ -18,10 +18,13 @@ namespace TravelAgency
         public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
+            
             var serviceScope = host.Services.CreateScope();
             var services = serviceScope.ServiceProvider;
+            var migrationInitializer = services.GetRequiredService<MigrationInitializer>();
             var userManager = services.GetRequiredService<UserManager<User>>();
             var rolesManager = services.GetRequiredService<RoleManager<IdentityRole<int>>>();
+            await migrationInitializer.Run();
             await RoleInitializer.InitializeRoleAsync(rolesManager);
             await UserInitializer.InitializeUserAsync(userManager);
             await host.RunAsync();

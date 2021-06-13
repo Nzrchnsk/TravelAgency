@@ -8,11 +8,11 @@ namespace TravelAgency.Helper
 {
     public static class EmailHelper
     {
-        public static async Task ByTicket(string email, int ticketNumber, string[] tripName)
+        public static async Task BuyTicket(string email, string ticketNumber, string[] tripName)
         {
             
             await SendEmailAsync(email, $"Билет турфирмы №{ticketNumber} ",
-                $"Здавствуйте, вы купили билет у нашей турфирмы номер {ticketNumber}, по маршруту {string.Join('-', tripName)}");
+                $"Здравствуйте, вы купили билет у нашей турфирмы номер {ticketNumber}, по маршруту {string.Join(" - ", tripName)}");
         }
         
         private static async Task SendEmailAsync(string email, string subject, string message)

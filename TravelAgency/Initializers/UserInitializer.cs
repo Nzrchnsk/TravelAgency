@@ -17,7 +17,7 @@ namespace TravelAgency.Initializers
                 var result = await userManager.CreateAsync(admin, password);
                 if (result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(admin, "admin");
+                    await userManager.AddToRoleAsync(admin, Rolse.Admin);
                     admin.EmailConfirmed = true;
                 }
             }

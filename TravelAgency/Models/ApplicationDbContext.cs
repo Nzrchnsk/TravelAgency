@@ -7,36 +7,20 @@ namespace TravelAgency.Models
 {
     public class ApplicationDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
-        public DbSet<Order> Orders { get; set; }
+        // public DbSet<Order> Orders { get; set; }
         public DbSet<Place> Places { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Trip> Trips { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> dbContextOptions) : base(dbContextOptions)
         {
-            Database.EnsureCreated();
-            if (!Places.Any())
-            {
-                Places.Add(new Place
-                {
-                    Name = "Тесть 1",
-                    Description = "фывфывфывфывфыв",
-                    Address = "йцуыячсячс",
-                });
-                Places.Add(new Place
-                {
-                    Name = "Тесть 2",
-                    Description = "фывфывфывфывфыв",
-                    Address = "йцуыячсячс"
-                });
-                SaveChanges();
-            }
+           
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.UseIdentityColumns();
             modelBuilder.Entity<Trip>(entity =>
             {
                 entity.ToTable(name:"Trip");
@@ -88,11 +72,11 @@ namespace TravelAgency.Models
                     .WithMany(pt => pt.Tickets)
                     .HasForeignKey(e => e.TripId);
                 
-                entity.Property(e => e.OrderId).HasColumnName("OrderId");
-                entity.HasOne(e => e.Order)
-                    .WithMany(pt => pt.Tickets)
-                    .HasForeignKey(e => e.OrderId)
-                    .OnDelete(DeleteBehavior.NoAction);
+                // entity.Property(e => e.OrderId).HasColumnName("OrderId");
+                // entity.HasOne(e => e.Order)
+                //     .WithMany(pt => pt.Tickets)
+                //     .HasForeignKey(e => e.OrderId)
+                //     .OnDelete(DeleteBehavior.NoAction);
             });
         }
         
