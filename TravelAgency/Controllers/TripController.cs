@@ -19,14 +19,14 @@ namespace TravelAgency.Controllers
     public class TripController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly IAsyncRepository<Trip> _placesRepository;
+        private readonly IAsyncRepository<Trip> _tripRepository;
         private readonly IMapper _mapper;
 
 
-        public TripController(ApplicationDbContext context, IAsyncRepository<Trip> placesRepository, IMapper mapper)
+        public TripController(ApplicationDbContext context, IAsyncRepository<Trip> tripRepository, IMapper mapper)
         {
             _mapper = mapper;
-            _placesRepository = placesRepository;
+            _tripRepository = tripRepository;
             _context = context;
         }
 
@@ -70,7 +70,7 @@ namespace TravelAgency.Controllers
                 return BadRequest();
             }
 
-            var trip = await _placesRepository.GetByIdAsync(id);
+            var trip = await _tripRepository.GetByIdAsync(id);
             if (trip is null)
             {
                 return NotFound();
@@ -80,7 +80,7 @@ namespace TravelAgency.Controllers
 
             try
             {
-                await _placesRepository.UpdateAsync(trip);
+                await _tripRepository.UpdateAsync(trip);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -105,7 +105,7 @@ namespace TravelAgency.Controllers
             var trip = _mapper.Map<Trip>(request);
             try
             {
-                return await _placesRepository.AddAsync(trip);
+                return await _tripRepository.AddAsync(trip);
             }
             catch (Exception e)
             {
@@ -117,13 +117,13 @@ namespace TravelAgency.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTrip(int id)
         {
-            var trip = await _placesRepository.GetByIdAsync(id);
+            var trip = await _tripRepository.GetByIdAsync(id);
             if (trip == null)
             {
                 return NotFound();
             }
 
-            await _placesRepository.DeleteAsync(trip);
+            await _tripRepository.DeleteAsync(trip);
 
             return NoContent();
         }

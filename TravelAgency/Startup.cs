@@ -45,13 +45,11 @@ namespace TravelAgency
             services.AddIdentity<User, IdentityRole<int>>(opts =>
             {
                 #region Настройки валидации пароля
-
                 opts.Password.RequiredLength = 1; // минимальная длина
                 opts.Password.RequireNonAlphanumeric = false; // требуются ли не алфавитно-цифровые символы
                 opts.Password.RequireLowercase = false; // требуются ли символы в нижнем регистре
                 opts.Password.RequireUppercase = false; // требуются ли символы в верхнем регистре
                 opts.Password.RequireDigit = false; // требуются ли цифры
-
                 #endregion
             }).AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
@@ -144,8 +142,8 @@ namespace TravelAgency
             app.UseCors(x => x
                 .AllowAnyMethod()
                 .AllowAnyHeader()
-                .SetIsOriginAllowed(origin => true) // allow any origin
-                .AllowCredentials()); // allow credentials
+                .SetIsOriginAllowed(origin => true) 
+                .AllowCredentials()); 
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseSwagger();
